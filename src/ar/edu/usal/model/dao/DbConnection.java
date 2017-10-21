@@ -9,7 +9,7 @@ public class DbConnection {
 	private static DbConnection dbConnectionInstance = null;
 	
 	private String dbDriver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-	private String dbServer = "jdbc:sqlserver://localhost:1433;databaseName=TP_Programacion_Avanzada;integratedSecurity=true;";
+	private String dbServer = "jdbc:sqlserver://localhost:1433;databaseName=TP_CasaFotos;integratedSecurity=true;";
 	
 	private Connection connection;
 	

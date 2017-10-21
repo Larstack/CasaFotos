@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import ar.edu.usal.model.dto.Localidades;
 
@@ -56,5 +57,23 @@ private static LocalidadesDao localidadesDaoInstance = null;
 	public ArrayList<Localidades> getLocalidadesList() {
 		return localidadesList;
 	}	
+	
+	public Localidades getLocalidadById(int id) {
+		
+		for (Iterator iterator = localidadesList.iterator(); iterator.hasNext();) {
+			
+			Localidades localidades = (Localidades) iterator.next();
+			
+			if (localidades.getId() == id) {
+				
+				return localidades;
+				
+			} 
+			
+		}
+		
+		return null;
+		
+	}
 		
 }

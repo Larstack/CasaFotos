@@ -2,22 +2,21 @@ package ar.edu.usal.model.dto;
 
 public class Clientes {
 	
+	private int id;
 	private String nombreApellido;
 	private String domicilio;
 	private String mail;
-	private Localidades localidad;
-
 	
 	public Clientes() {
 		super();
 	}
 
-	public Clientes(String nombreApellido, String domicilio, String mail, Localidades localidad) {
+	public Clientes(int id, String nombreApellido, String domicilio, String mail) {
 		super();
 		this.nombreApellido = nombreApellido;
 		this.domicilio = domicilio;
 		this.mail = mail;
-		this.localidad = localidad;
+		this.id = id;
 	}
 
 	
@@ -45,12 +44,12 @@ public class Clientes {
 		this.mail = mail;
 	}
 
-	public Localidades getLocalidad() {
-		return localidad;
+	public int getId() {
+		return id;
 	}
 
-	public void setLocalidad(Localidades localidad) {
-		this.localidad = localidad;
+	public void setId(int id) {
+		this.id = id;
 	}
 		
 }

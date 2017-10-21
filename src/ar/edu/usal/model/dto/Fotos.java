@@ -7,18 +7,21 @@ public class Fotos {
 
 	private TamanioEnum tamanio;
 	private PapelEnum papel;
-	private int cantidad;
-	//Aca debe ir tambien el nombreArchivo (.jpg) a imprimir segun pedido
+//	private int cantidad;
+	private String path;
+	private int id;
 	
 	public Fotos() {
 		super();
 	}
 
-	public Fotos(TamanioEnum tamanio, PapelEnum papel, int cantidad) {
+	public Fotos(TamanioEnum tamanio, PapelEnum papel, String path, int id) {
 		super();
 		this.tamanio = tamanio;
 		this.papel = papel;
-		this.cantidad = cantidad;
+//		this.cantidad = cantidad;
+		this.setPath(path);
+		this.setId(id);
 	}
 
 	
@@ -38,12 +41,28 @@ public class Fotos {
 		this.papel = papel;
 	}
 
-	public int getCantidad() {
-		return cantidad;
+//	public int getCantidad() {
+//		return cantidad;
+//	}
+//
+//	public void setCantidad(int cantidad) {
+//		this.cantidad = cantidad;
+//	}
+
+	public String getPath() {
+		return path;
 	}
 
-	public void setCantidad(int cantidad) {
-		this.cantidad = cantidad;
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 	
 }
