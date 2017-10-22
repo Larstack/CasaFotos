@@ -141,8 +141,8 @@ public class Pedidos {
 		return importe;
 	}
 	
-	public double calculoCostoPedido(){
+	public void calculoCostoPedido(){
 		
-		return this.calculoAdicionalStrategy.calcularCosto() * this.cantidad;
+		this.importe = this.calculoAdicionalStrategy.calcularCosto() * this.cantidad;
 	}
 }

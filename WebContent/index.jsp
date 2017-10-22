@@ -159,7 +159,7 @@
 		</script>
 	</head>
 	<body>
-		<form action="/CargarFotoServlet" name="fotosForm" id="fotosForm">
+		<form action="CargarFotoServlet" method="post" enctype="multipart/form-data" name="fotosForm" id="fotosForm">
 			<table>
 				<tr>
 					<td>

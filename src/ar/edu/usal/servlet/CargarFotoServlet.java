@@ -10,15 +10,16 @@ import java.util.List;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.tomcat.util.http.fileupload.FileItem;
-import org.apache.tomcat.util.http.fileupload.RequestContext;
 import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
+import org.apache.tomcat.util.http.fileupload.servlet.ServletRequestContext;
 
 import ar.edu.usal.model.dao.PedidosDao;
 import ar.edu.usal.model.dao.SucursalesDao;
@@ -28,6 +29,7 @@ import ar.edu.usal.model.dto.Pedidos;
 /**
  * Servlet implementation class CargarFotoServlet
  */
+@MultipartConfig
 @WebServlet("/CargarFotoServlet")
 public class CargarFotoServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -48,8 +50,6 @@ public class CargarFotoServlet extends HttpServlet {
 	public void init(ServletConfig config) throws ServletException {
 
 		DiskFileItemFactory fileFactory = new DiskFileItemFactory();
-		File direccionFile = (File) getServletContext().getAttribute("FILES_DIR_FILE");
-		fileFactory.setRepository(direccionFile);
 		this.uploader = new ServletFileUpload(fileFactory);
 	}
 
@@ -58,27 +58,6 @@ public class CargarFotoServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-		String foto = request.getParameter("foto");
-		String tamanio = request.getParameter("tamanio");
-		String papel = request.getParameter("papel");
-		int cantidad = Integer.parseInt(request.getParameter("cantidad"));
-		String nombre = request.getParameter("nombre");
-		String mail = request.getParameter("mail");
-		String domicilio = request.getParameter("domicilio");
-		int sucursalId = Integer.parseInt(request.getParameter("sucursal"));
-
-		doPost(request, response);
-
-		Pedidos pedido = this.instanciarPedido(foto, tamanio, papel, cantidad, nombre, mail, domicilio, sucursalId);
-
-		PedidosDao pedidosDao = PedidosDao.getInstance();
-
-		int idPedido = 0;
-		// DOIT!!!! con SP que devuelve ID
-		//		idPedido = pedidosDao.grabarPedido();
-
-		pedido.setNumero(idPedido);
-		this.mostrarFactura(pedido, response);
 	}
 
 	private void mostrarFactura(Pedidos pedido, HttpServletResponse response) {
@@ -100,7 +79,7 @@ public class CargarFotoServlet extends HttpServlet {
 
 			Calendar fecha = Calendar.getInstance();
 			int anio = fecha.get(Calendar.YEAR); 
-			int mes = fecha.get(Calendar.MONTH + 1);
+			int mes = fecha.get(Calendar.MONTH) + 1;
 			int dia = fecha.get(Calendar.DAY_OF_MONTH);
 
 			String fechaString = dia + "/" + mes + "/" + anio;
@@ -109,7 +88,7 @@ public class CargarFotoServlet extends HttpServlet {
 			out.print("<br><br>");
 			out.print("Numero Sucursal: " + pedido.getSucursalRetiro().getNumeroSucursal());
 			out.print("<br><br>");
-			out.print("Localidad Sucursal: " + pedido.getSucursalRetiro().getLocalidad());
+			out.print("Localidad Sucursal: " + pedido.getSucursalRetiro().getLocalidad().getNombre());
 			out.print("<br><br>");
 			out.print("Cliente: " + pedido.getCliente().getNombreApellido());
 			out.print("<br><br>");
@@ -146,7 +125,10 @@ public class CargarFotoServlet extends HttpServlet {
 		pedido.setSucursalRetiro(sucursalesDao.getSucursalByNumeroSucursal(sucursalId));
 
 		pedido.setFoto(tamanio, papel, foto);
-
+		pedido.setCantidad(cantidad);
+		
+		pedido.calculoCostoPedido();
+		
 		return pedido;
 	}
 
@@ -161,16 +143,75 @@ public class CargarFotoServlet extends HttpServlet {
 
 		try {
 
-			List<FileItem> fileItemsList = uploader.parseRequest((RequestContext) request);
+			Pedidos pedido = null;
+
+			String foto = "";
+			String tamanio = "";
+			String papel = "";
+			int cantidad = 0;
+			String nombre = "";
+			String mail = "";
+			String domicilio = "";
+			int sucursalId = 0;
+
+			List<FileItem> fileItemsList = uploader.parseRequest(new ServletRequestContext(request));
 			Iterator<FileItem> fileItemsIterator = fileItemsList.iterator();
+			
+			//El path está definido en el web.xml
+			File dir = new File(request.getServletContext().getInitParameter("file-upload"));
+
+			dir.mkdirs();
 
 			while(fileItemsIterator.hasNext()){
 
 				FileItem fileItem = fileItemsIterator.next();
-				File file = new File(request.getServletContext().getAttribute("FILES_DIR")+File.separator+fileItem.getName());
-
-				fileItem.write(file);
+				
+				if(fileItem.getFieldName().equals("foto")){
+					File file = new File(request.getServletContext().getInitParameter("file-upload")
+							+File.separator+fileItem.getName());
+					
+					fileItem.write(file);
+					
+					foto = fileItem.getName();
+					
+				}else{
+					
+					 String name = fileItem.getFieldName();
+					 
+					 if(name.equals("tamanio")){
+						 
+						 tamanio = fileItem.getString(); 
+					 }else if(name.equals("papel")){
+						 
+						 papel = fileItem.getString();
+					 }else if(name.equals("cantidad")){
+						 
+						 cantidad = Integer.parseInt(fileItem.getString());
+					 }else if(name.equals("nombre")){
+						 
+						 nombre = fileItem.getString();
+					 }else if(name.equals("mail")){
+						 
+						 mail = fileItem.getString();
+					 }else if(name.equals("domicilio")){
+						 
+						 domicilio = fileItem.getString();
+					 }else if(name.equals("sucursal")){
+						 
+						 sucursalId = Integer.parseInt(fileItem.getString());
+					 }					
+				}
 			}
+			
+			pedido = this.instanciarPedido(foto, tamanio, papel, cantidad, nombre, mail, domicilio, sucursalId);
+
+			PedidosDao pedidosDao = PedidosDao.getInstance();
+
+			int idPedido = pedidosDao.grabarPedido(pedido);
+
+			pedido.setNumero(idPedido);
+			
+			this.mostrarFactura(pedido, response);
 
 		}catch (Exception e) {
 
