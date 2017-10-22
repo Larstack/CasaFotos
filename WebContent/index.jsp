@@ -130,6 +130,32 @@
 				return ok;
 			}
 			
+			function sugerirSucursal(){
+				
+				var domicilio = document.getElementById('domicilio');
+				var sucursalOptions = document.getElementById('sucursal');
+				var domicilioArray = domicilio.value.split(" ");
+				
+				var ok = false;
+				for (var i = 0; i < domicilioArray.length; i++) {
+					
+					var domicilioIt = domicilioArray[i].trim().toUpperCase();
+					
+					for (var j = 0; j < sucursalOptions.length; j++) {
+
+						if(sucursalOptions[j].textContent.trim().toUpperCase().indexOf(domicilioIt) != -1){
+							
+							sucursalOptions[j].selected = true;
+							
+							ok = true;
+							break;
+						}
+					}
+					
+					if(ok) break;
+				}
+			}
+			
 		</script>
 	</head>
 	<body>
@@ -195,7 +221,7 @@
 				<tr>
 					<td>
 						<label>Ingrese domicilio: </label> 
-						<input type="text" name="domicilio" id="domicilio"/>
+						<input type="text" name="domicilio" id="domicilio" onChange="sugerirSucursal();" />
 					</td>
 					<td>
 						<p id="domicilioError" style="color:red;font-weight:bold;font-style:italic;"></p>
